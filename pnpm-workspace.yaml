@@ -5,3 +5,5 @@ packages:
   - '!**/test/**'
   # all packages in subdirs of components/
   - 'components/**'
+allowBuilds:
+  esbuild: true
