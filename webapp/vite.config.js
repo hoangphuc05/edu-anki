@@ -5,7 +5,7 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-   server: {
+  server: {
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'require-corp',
@@ -19,7 +19,9 @@ export default defineConfig({
       target: 'react',
       autoCodeSplitting: true,
     }),
-    react(), 
-    tailwindcss()
+    react(),
+    tailwindcss(),
   ],
 })
+
+
