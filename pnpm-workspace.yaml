@@ -6,4 +6,7 @@ packages:
   # all packages in subdirs of components/
   - 'components/**'
 allowBuilds:
+  '@prisma/engines': true
+  better-sqlite3: true
   esbuild: true
+  prisma: true

@@ -1,0 +1,49 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  decks     Deck[]
+  createdAt DateTime @default(now())
+}
+
+model Deck {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cards       Card[]
+  createdAt   DateTime @default(now())
+}
+
+model Card {
+  id         String    @id @default(uuid())
+  deckId     String
+  deck       Deck      @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  question   String
+  answer     String
+  tags       String    @default("[]")
+  fsrsState  String    @default("{}")
+  nextReview DateTime?
+  lastReview DateTime?
+  reviews    Review[]
+  createdAt  DateTime  @default(now())
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  rating    Int
+  duration  Int?
+  createdAt DateTime @default(now())
+}
