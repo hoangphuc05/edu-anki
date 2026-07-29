@@ -1,0 +1,11 @@
+{
+  "name": "shared-types",
+  "version": "1.0.0",
+  "description": "Shared Zod validation schemas used by both the server and webapp packages",
+  "type": "module",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}
