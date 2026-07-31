@@ -1,5 +1,6 @@
 import { PrismaClient } from './generated/prisma/client.js';
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import Database from 'better-sqlite3';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -134,9 +135,26 @@ export async function enableWalMode(client) {
 // Database initialisation
 // ---------------------------------------------------------------------------
 
+function hasUserTable(dbPath) {
+  if (!fs.existsSync(dbPath) || fs.statSync(dbPath).size === 0) {
+    return false;
+  }
+
+  const database = new Database(dbPath, { readonly: true });
+  try {
+    return Boolean(
+      database
+        .prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'User'")
+        .get()
+    );
+  } finally {
+    database.close();
+  }
+}
+
 /**
  * Initialise the database:
- * 1. If the database file does not exist, run `prisma db push` to create it.
+ * 1. If the database is missing or does not contain the schema, run `prisma db push`.
  * 2. Connect the PrismaClient.
  * 3. Enable WAL mode.
  *
@@ -146,7 +164,7 @@ export async function initializeDatabase() {
   const dbPath = getDatabasePath();
   const client = getPrismaClient();
 
-  if (!fs.existsSync(dbPath)) {
+  if (!hasUserTable(dbPath)) {
     // Push the schema to create the database file and all tables
     const serverDir = path.resolve(__dirname, '..');
     execSync('npx prisma db push', {

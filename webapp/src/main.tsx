@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.jsx'
+import './App.css'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { AuthProvider } from './context/AuthContext.jsx'
 

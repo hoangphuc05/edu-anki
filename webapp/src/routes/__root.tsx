@@ -13,37 +13,33 @@ const RootLayout = () => {
 
   return (
     <>
-      <div className="navbar bg-base-200 px-4">
-        <div className="flex-1 flex gap-4">
-          <Link to="/" className="[&.active]:font-bold">
-            Home
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex min-h-16 max-w-5xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link to="/" className="text-lg font-semibold tracking-tight text-slate-900">
+            Edu Anki
           </Link>
-          <Link to="/about" className="[&.active]:font-bold">
-            About
-          </Link>
+          <div className="flex items-center gap-3">
+            {isLoading ? null : user ? (
+              <>
+                <span className="hidden max-w-48 truncate text-sm text-slate-600 sm:block">{user.email}</span>
+                <button type="button" className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2" onClick={handleLogout}>
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-sm font-medium text-slate-700 transition-colors hover:text-slate-950">
+                  Log in
+                </Link>
+                <Link to="/register" className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
+                  Register
+                </Link>
+              </>
+            )}
+          </div>
         </div>
-        <div className="flex-none flex items-center gap-2">
-          {isLoading ? null : user ? (
-            <>
-              <span className="text-sm opacity-70">{user.email}</span>
-              <button type="button" className="btn btn-sm" onClick={handleLogout}>
-                Log out
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="btn btn-sm">
-                Log in
-              </Link>
-              <Link to="/register" className="btn btn-sm btn-primary">
-                Register
-              </Link>
-            </>
-          )}
-        </div>
-      </div>
-      <hr />
-      <Outlet />
+      </header>
+      <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6"><Outlet /></main>
       <TanStackRouterDevtools />
     </>
   )
