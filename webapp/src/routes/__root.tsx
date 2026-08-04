@@ -21,6 +21,9 @@ const RootLayout = () => {
           <div className="flex items-center gap-3">
             {isLoading ? null : user ? (
               <>
+                <Link to="/decks" className="text-sm font-medium text-slate-700 transition-colors hover:text-slate-950">
+                  Decks
+                </Link>
                 <span className="hidden max-w-48 truncate text-sm text-slate-600 sm:block">{user.email}</span>
                 <button type="button" className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2" onClick={handleLogout}>
                   Log out
