@@ -27,8 +27,17 @@ app.use('/api/cards', cardsRouter);
 app.use(express.static(webPath));
 
 // Catch-all route: return index.html for any unmatched path (SPA pattern)
-app.get('/{*splat}', (req, res) => {
-  res.sendFile(path.join(webPath, 'index.html'));
+app.get('/{*splat}', (req, res, next) => {
+  res.sendFile(path.join(webPath, 'index.html'), (err) => {
+    // No built dist (e.g. in CI) means index.html is missing — that's a 404, not a 500.
+    if (err) {
+      if (err.code === 'ENOENT') {
+        res.status(404).end();
+      } else {
+        next(err);
+      }
+    }
+  });
 });
 
 // Centralized error-handling middleware (must be registered last)
