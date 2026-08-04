@@ -76,7 +76,7 @@ jobs:
       # since the previous tag (fix: -> patch, feat: -> minor, BREAKING CHANGE -> major).
       - name: Bump version and push tag
         id: tag_version
-        uses: mathieudutour/github-tag-action@v13
+        uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: patch
