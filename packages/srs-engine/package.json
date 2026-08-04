@@ -1,0 +1,27 @@
+{
+  "name": "srs-engine",
+  "version": "1.0.0",
+  "description": "Service layer wrapping ts-fsrs to calculate review schedules from user ratings and current card state",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "vitest run --maxWorkers=1 --minWorkers=1"
+  },
+  "keywords": [
+    "fsrs",
+    "spaced-repetition",
+    "srs",
+    "scheduling"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ts-fsrs": "^5.4.1"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

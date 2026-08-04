@@ -213,6 +213,16 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
+  packages/srs-engine:
+    dependencies:
+      ts-fsrs:
+        specifier: ^5.4.1
+        version: 5.4.1
+    devDependencies:
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)
+
   server:
     dependencies:
       '@prisma/adapter-better-sqlite3':
@@ -2863,6 +2873,10 @@ packages:
   tr46@5.1.1:
     resolution: {integrity: sha512-hdF5ZgjTqgAntKkklYw0R03MG2x/bSzTtkxmIRw/sTNV8YXsCJ1tfLAX23lhxhHJlEf3CRCOCGGWw3vI3GaSPw==}
     engines: {node: '>=18'}
+
+  ts-fsrs@5.4.1:
+    resolution: {integrity: sha512-mOp9+oexJexBTkwjg/jQI1aSUQRLIAvbimeKHLSmVdNJPwObugFNKmZkoggH5d6kZ0uaWLboP1Al1DnXAfIb9w==}
+    engines: {node: '>=20.0.0'}
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
@@ -5529,6 +5543,8 @@ snapshots:
   tr46@5.1.1:
     dependencies:
       punycode: 2.3.1
+
+  ts-fsrs@5.4.1: {}
 
   tslib@2.8.1:
     optional: true
