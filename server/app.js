@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import authRouter from './src/routes/auth.js';
 import decksRouter from './src/routes/decks.js';
 import cardsRouter from './src/routes/cards.js';
+import studyRouter from './src/routes/study.js';
 import { errorHandler } from './src/middleware/errorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,6 +23,9 @@ app.use('/api/auth', authRouter);
 // Deck/card CRUD API routes
 app.use('/api/decks', decksRouter);
 app.use('/api/cards', cardsRouter);
+
+// Study (spaced-repetition) API routes
+app.use('/api/study', studyRouter);
 
 // Serve static files from the compiled webapp dist directory
 app.use(express.static(webPath));
