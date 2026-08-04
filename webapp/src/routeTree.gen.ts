@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StudyRouteImport } from './routes/study'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DecksIndexRouteImport } from './routes/decks/index'
 import { Route as DecksDeckIdRouteImport } from './routes/decks/$deckId'
 
+const StudyRoute = StudyRouteImport.update({
+  id: '/study',
+  path: '/study',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/study': typeof StudyRoute
   '/decks/$deckId': typeof DecksDeckIdRoute
   '/decks/': typeof DecksIndexRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/study': typeof StudyRoute
   '/decks/$deckId': typeof DecksDeckIdRoute
   '/decks': typeof DecksIndexRoute
 }
@@ -60,27 +68,49 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/study': typeof StudyRoute
   '/decks/$deckId': typeof DecksDeckIdRoute
   '/decks/': typeof DecksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/decks/$deckId' | '/decks/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/study'
+    | '/decks/$deckId'
+    | '/decks/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/decks/$deckId' | '/decks'
-  id: '__root__' | '/' | '/login' | '/register' | '/decks/$deckId' | '/decks/'
+  to: '/' | '/login' | '/register' | '/study' | '/decks/$deckId' | '/decks'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/register'
+    | '/study'
+    | '/decks/$deckId'
+    | '/decks/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  StudyRoute: typeof StudyRoute
   DecksDeckIdRoute: typeof DecksDeckIdRoute
   DecksIndexRoute: typeof DecksIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/study': {
+      id: '/study'
+      path: '/study'
+      fullPath: '/study'
+      preLoaderRoute: typeof StudyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -123,6 +153,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  StudyRoute: StudyRoute,
   DecksDeckIdRoute: DecksDeckIdRoute,
   DecksIndexRoute: DecksIndexRoute,
 }
