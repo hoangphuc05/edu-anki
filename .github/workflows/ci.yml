@@ -37,3 +37,65 @@ jobs:
 
       - name: Run webapp unit tests
         run: pnpm --filter webapp test
+
+  release:
+    name: Tag and Release
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter server exec prisma generate
+
+      - name: Build webapp
+        run: pnpm --filter webapp build
+
+      # Bumps and pushes a new semver tag based on conventional commit messages
+      # since the previous tag (fix: -> patch, feat: -> minor, BREAKING CHANGE -> major).
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v13
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch
+
+      - name: Package webapp artifact
+        run: zip -r "webapp-dist-${{ steps.tag_version.outputs.new_tag }}.zip" dist
+        working-directory: webapp
+
+      - name: Package server artifact
+        run: |
+          zip -r "server-${{ steps.tag_version.outputs.new_tag }}.zip" server \
+            -x 'server/node_modules/*' 'server/prisma/*.db' 'server/prisma/*.db-*'
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          generate_release_notes: true
+          files: |
+            webapp/webapp-dist-${{ steps.tag_version.outputs.new_tag }}.zip
+            server-${{ steps.tag_version.outputs.new_tag }}.zip
