@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { cardCreateSchema, cardUpdateSchema, deckUpdateSchema } from 'shared-types'
 import { useAuth } from '../../context/AuthContext.jsx'
@@ -187,6 +187,13 @@ function DeckDetailPage() {
                 {deck.description && <p className="mt-2 text-sm text-slate-600">{deck.description}</p>}
               </div>
               <div className="flex shrink-0 gap-2">
+                <Link
+                  to="/study"
+                  search={{ deckId }}
+                  className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-slate-700"
+                >
+                  Study
+                </Link>
                 <button
                   type="button"
                   className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100"
