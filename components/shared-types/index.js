@@ -56,3 +56,17 @@ export const cardCreateSchema = z.object({
 export const cardUpdateSchema = cardCreateSchema
   .partial()
   .refine((obj) => Object.keys(obj).length > 0, { message: 'At least one field must be provided' });
+
+/**
+ * The UI review ratings accepted by POST /api/study/review.
+ */
+export const REVIEW_RATINGS = ['again', 'hard', 'medium', 'easy'];
+
+/**
+ * Schema for POST /api/study/review request bodies.
+ */
+export const reviewSchema = z.object({
+  cardId: z.string().min(1, 'cardId is required'),
+  rating: z.enum(REVIEW_RATINGS, { message: 'rating must be one of again, hard, medium, easy' }),
+  duration: z.number().int().nonnegative().max(86400).optional(),
+});

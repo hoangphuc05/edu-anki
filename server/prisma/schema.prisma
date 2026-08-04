@@ -37,6 +37,9 @@ model Card {
   lastReview DateTime?
   reviews    Review[]
   createdAt  DateTime  @default(now())
+
+  @@index([deckId])
+  @@index([nextReview])
 }
 
 model Review {

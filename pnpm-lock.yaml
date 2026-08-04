@@ -255,6 +255,9 @@ importers:
       shared-types:
         specifier: workspace:*
         version: link:../components/shared-types
+      srs-engine:
+        specifier: workspace:*
+        version: link:../packages/srs-engine
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^3.2.4
