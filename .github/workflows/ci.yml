@@ -38,9 +38,37 @@ jobs:
       - name: Run webapp unit tests
         run: pnpm --filter webapp test
 
+      - name: Check requirement/test traceability
+        run: node scripts/traceability.js
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint webapp
+        run: pnpm --filter webapp lint
+
   release:
     name: Tag and Release
-    needs: test
+    needs: [test, lint]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -99,3 +127,23 @@ jobs:
           files: |
             webapp/webapp-dist-${{ steps.tag_version.outputs.new_tag }}.zip
             server-${{ steps.tag_version.outputs.new_tag }}.zip
+
+      # Keeps docs/BASELINE_INVENTORY.md in sync with the tag/release CI just created,
+      # instead of relying on a manual edit after every release.
+      - name: Update baseline inventory
+        run: |
+          node scripts/update_baseline_inventory.js \
+            "${{ steps.tag_version.outputs.new_tag }}" \
+            "$(git rev-parse --short HEAD)"
+
+      - name: Commit baseline inventory update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/BASELINE_INVENTORY.md
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: record baseline ${{ steps.tag_version.outputs.new_tag }} [skip ci]"
+            git push origin HEAD:main
+          else
+            echo "No baseline inventory changes to commit"
+          fi
