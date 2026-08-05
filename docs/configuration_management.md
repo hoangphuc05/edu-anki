@@ -10,6 +10,8 @@
 |---|---|---|
 | 1.0 | 2026-08-04 | Initial living CM report. Expanded the prior content of this file into a full report with revision history, repository metrics, configuration items, baseline, testing, CI/CD, release, dependency, traceability, risk, and maturity sections. |
 | 1.1 | 2026-08-04 | Added Docker support (`Dockerfile`, `docker-compose.yml`), `server/.env.example` template, PR template (`.github/PULL_REQUEST_TEMPLATE.md`), and `CHANGELOG.md`. Reclassified these items from NOT IMPLEMENTED to IMPLEMENTED. |
+| 1.2 | 2026-08-04 | Added baseline inventory document (`docs/BASELINE_INVENTORY.md`). Reclassified Baselines from PARTIALLY IMPLEMENTED to IMPLEMENTED. |
+| 1.3 | 2026-08-04 | Implemented requirement↔test traceability: added `docs/traceability-map.json`, `scripts/traceability.js`, a "Verifying Test(s)" column to the PRD traceability matrix, and a "Verifying Test(s)" column to `docs/risk_management.csv`. Reclassified Traceability from PARTIALLY IMPLEMENTED to IMPLEMENTED. |
 
 > Note: The prior version of this file contained no version or revision history. Its
 > accurate content (branching, change control, testing, release tagging, automation,
@@ -112,7 +114,10 @@ Configuration items identified in the repository:
 | Issue template | `.github/ISSUE_TEMPLATE/new-feature.md` | IMPLEMENTED |
 | PRD | `docs/Product_Requirements_Document.md` | IMPLEMENTED |
 | Risk register | `docs/risk_management.csv` | IMPLEMENTED |
+| Traceability map | `docs/traceability-map.json` | IMPLEMENTED |
+| Traceability script | `scripts/traceability.js` | IMPLEMENTED |
 | CM report | `docs/configuration_management.md` | IMPLEMENTED |
+| Baseline inventory | `docs/BASELINE_INVENTORY.md` | IMPLEMENTED |
 | README | `README.md` | IMPLEMENTED |
 | Dependency lockfile | `pnpm-lock.yaml` | IMPLEMENTED |
 | Dockerfile | `Dockerfile` | IMPLEMENTED |
@@ -187,9 +192,9 @@ A formal change control process governs all changes introduced into the working 
   merged pull request advances the baseline (10 merge commits confirm this).
 - **Release baselines:** Tags `v0.0.1` … `v0.0.6` mark release baselines. The CI release
   job auto-bumps the tag on merge to `main`.
-- **Documented baseline policy:** PARTIALLY IMPLEMENTED. The process is described in this
-  report, but there is no dedicated baseline-management document or explicit baseline
-  inventory.
+- **Baseline inventory:** `docs/BASELINE_INVENTORY.md` catalogs every baseline (tag,
+  commit SHA, date, scope, status) and documents the rollback/recovery procedure.
+  Baseline management is therefore **IMPLEMENTED**.
 
 ---
 
@@ -272,11 +277,15 @@ Once a version of the software is completed and tested, it is tagged with a rele
 - **Requirements:** `docs/Product_Requirements_Document.md` (PRD) includes a Requirements
   Traceability Matrix and revision history tied to git commits.
 - **Risks:** `docs/risk_management.csv` maps risks to functional, preventative, and
-  responsive requirements.
+  responsive requirements, and now includes a "Verifying Test(s)" column.
 - **Change history:** Full git history (33 commits, 10 merges) provides an audit trail of
   all changes.
-- **Traceability status:** PARTIALLY IMPLEMENTED. Requirements and risks are documented,
-  but there is no automated traceability between requirements, tests, and code.
+- **Automated traceability:** `docs/traceability-map.json` maps every FR-* requirement to
+  its verifying test file(s), and `scripts/traceability.js` validates the mapping (missing
+  test files, empty test files, unmapped requirements, stale entries). The PRD traceability
+  matrix is generated from this mapping.
+- **Traceability status:** IMPLEMENTED. Requirements, risks, and tests are linked through
+  the traceability map and validated by the automated script.
 
 ---
 
@@ -310,13 +319,13 @@ Once a version of the software is completed and tested, it is tagged with a rele
 | Version Control | IMPLEMENTED | Git + GitHub, 33 commits, clean history | Add conventional-commit enforcement |
 | Branching | IMPLEMENTED | `main` + `feature/*`, 10 merge commits | Document branch-protection rules in repo |
 | Change Control | IMPLEMENTED | PR-based workflow, issue template | Add PR template |
-| Configuration Items | IMPLEMENTED | Source, schema, CI, docs, Docker, env template, CHANGELOG, PR template tracked | Add baseline inventory doc |
-| Baselines | PARTIALLY IMPLEMENTED | Tags v0.0.1–v0.0.6 | Add explicit baseline inventory doc |
+| Configuration Items | IMPLEMENTED | Source, schema, CI, docs, Docker, env template, CHANGELOG, PR template, baseline inventory tracked | — |
+| Baselines | IMPLEMENTED | Tags v0.0.1–v0.0.6 + `docs/BASELINE_INVENTORY.md` | Keep inventory current with each release |
 | Testing | IMPLEMENTED | 144 tests, 17 files | Add E2E (Playwright) as documented |
 | CI/CD | IMPLEMENTED | `.github/workflows/ci.yml` | Add lint job; enforce required checks |
 | Release Management | IMPLEMENTED | Auto-tag + GitHub Release + CHANGELOG | Reach v1.0.0 |
 | Documentation | PARTIALLY IMPLEMENTED | README, PRD, risk, CM report | Fix README drift |
-| Traceability | PARTIALLY IMPLEMENTED | PRD traceability matrix, risk CSV | Automate requirement↔test traceability |
+| Traceability | IMPLEMENTED | PRD traceability matrix, risk CSV, `traceability-map.json`, `scripts/traceability.js` | Wire traceability script into CI |
 | Risk Management | IMPLEMENTED | `docs/risk_management.csv` | Keep register current with new risks |
 
 ---
@@ -329,9 +338,9 @@ Once a version of the software is completed and tested, it is tagged with a rele
 | `.env.example` template | IMPLEMENTED | Added 2026-08-04 (`server/.env.example`) |
 | CHANGELOG.md | IMPLEMENTED | Added 2026-08-04 |
 | PR template | IMPLEMENTED | Added 2026-08-04 (`.github/PULL_REQUEST_TEMPLATE.md`) |
+| Baseline inventory document | IMPLEMENTED | Added 2026-08-04 (`docs/BASELINE_INVENTORY.md`) |
 | Playwright E2E tests | NOT IMPLEMENTED | Referenced in README but absent |
 | Branch-protection config (in-repo) | NOT IMPLEMENTED | Managed on GitHub, not verifiable locally |
-| Baseline inventory document | PARTIALLY IMPLEMENTED | Tags exist; no dedicated doc |
 | Root aggregate test runner | PARTIALLY IMPLEMENTED | Root `test` script is a stub |
 
 ---
@@ -348,12 +357,12 @@ Once a version of the software is completed and tested, it is tagged with a rele
 3. **Add Playwright E2E tests** or remove the claim from the README. Affects: `webapp/`, README.
 4. **Add a lint job to CI** (webapp has an ESLint script). Affects: `.github/workflows/ci.yml`.
 5. **Document branch-protection / required status checks** in the repo. Affects: README or docs.
+6. **Wire the traceability script into CI** so a PR that adds an unmapped requirement or
+   removes a mapped test file fails the build. Affects: `.github/workflows/ci.yml`.
 
 ### Future Improvements
-6. **Automate requirement↔test traceability** (link PRD requirements to test cases).
 7. **Introduce conventional commits** and enforce them in CI for accurate auto-versioning.
-8. **Add a baseline inventory document** listing each release baseline and its contents.
-9. **Add a second reviewer / documented review process** to reduce single-author risk.
+8. **Add a second reviewer / documented review process** to reduce single-author risk.
 
 ---
 
