@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: edu-anki:latest
+    container_name: edu-anki
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # SQLite database file (resolved relative to server/prisma/)
+      DATABASE_URL: file:./dev.db
+      # JWT secrets — MUST be overridden in production (see server/.env.example)
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access-secret}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret}
+      JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-15m}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
+    volumes:
+      # Persist the SQLite database across container restarts
+      - edu-anki-data:/app/server/prisma
+    restart: unless-stopped
+
+volumes:
+  edu-anki-data:

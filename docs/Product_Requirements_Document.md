@@ -10,8 +10,8 @@
 - Current Branch: feature/fsrs-engine
 - Current Commit SHA: 353e36a8c9021f29c3f1e1aba71e1c6b66c7ae33
 - Current Release Version: v0.0.3
-- Document Version: 0.2
-- Last Updated: 2026-08-03
+- Document Version: 0.3
+- Last Updated: 2026-08-04
 
 ## Revision History
 
@@ -19,6 +19,7 @@
 |--------|------|------------|-------------|--------|
 | 0.1 | 2026-07-21 | fac8df2a1a262c1fe7ffc324fa308254c327ec0e | Initial PRD created from repository evidence, existing documentation, and current implementation state. | Copilot |
 | 0.2 | 2026-08-03 | 353e36a8c9021f29c3f1e1aba71e1c6b66c7ae33 | Updated to reflect the implemented authentication, deck/card CRUD, SQLite/Prisma persistence, and the FSRS-based SRS engine. Preserved prior content and version history. | Copilot |
+| 0.3 | 2026-08-04 | (working tree) | Added a "Verifying Test(s)" column to the Requirements Traceability Matrix, mapping each FR-* to its automated test file(s). Added Section 18 documenting the automated traceability tooling (`docs/traceability-map.json`, `scripts/traceability.js`). | Copilot |
 
 ## Table of Contents
 
@@ -39,6 +40,7 @@
 15. Future Versions
 16. Open Issues
 17. Glossary
+18. Requirements ↔ Test Traceability (Automation)
 
 ---
 
@@ -470,39 +472,43 @@ The repository README documents the following future enhancements:
 
 # 14. Requirements Traceability Matrix
 
-| Requirement ID | Level-2 Capability | Requirement Description |
-|----------------|--------------------|------------------------|
-| FR-1.1.1 | Register User | The Authentication Service shall register a new user with a valid email and password within one request. |
-| FR-1.1.2 | Register User | The Authentication Service shall reject a duplicate email registration with a 409 conflict response. |
-| FR-1.1.3 | Register User | The Authentication Service shall hash the user's password with bcrypt before storing it. |
-| FR-1.2.1 | Authenticate User | The Authentication Service shall authenticate a registered user and issue an access token within one request. |
-| FR-1.2.2 | Authenticate User | The Authentication Service shall reject invalid credentials with a 401 response. |
-| FR-1.3.1 | Refresh User Session | The Authentication Service shall issue a new access token from a valid refresh token within one request. |
-| FR-1.3.2 | Refresh User Session | The Authentication Service shall reject an invalid or expired refresh token with a 401 response. |
-| FR-1.4.1 | Log Out User | The Authentication Service shall clear the session cookie and log the user out within one request. |
-| FR-2.1.1 | Create Deck | The Deck Service shall create a deck for the authenticated user with a valid title within one request. |
-| FR-2.2.1 | List Decks | The Deck Service shall list only the decks owned by the authenticated user. |
-| FR-2.3.1 | View Deck | The Deck Service shall return a deck owned by the authenticated user, including its cards. |
-| FR-2.4.1 | Update Deck | The Deck Service shall update the title or description of a deck owned by the authenticated user. |
-| FR-2.5.1 | Delete Deck | The Deck Service shall delete a deck owned by the authenticated user and cascade to its cards and reviews. |
-| FR-3.1.1 | Create Card | The Card Service shall create a card with a valid question, answer, and optional tags within a user's deck. |
-| FR-3.2.1 | List Cards | The Card Service shall list the cards belonging to a deck owned by the authenticated user. |
-| FR-3.3.1 | View Card | The Card Service shall return a card owned by the authenticated user via its deck. |
-| FR-3.4.1 | Update Card | The Card Service shall update the question, answer, or tags of a card owned by the authenticated user. |
-| FR-3.5.1 | Delete Card | The Card Service shall delete a card owned by the authenticated user via its deck. |
-| FR-4.1.1 | Apply Spaced Repetition Scheduling | The SRS Engine shall compute the next review date and updated FSRS state from a card's current state and a user rating. |
-| FR-4.1.2 | Apply Spaced Repetition Scheduling | The SRS Engine shall map UI ratings (again, hard, medium, easy) to the FSRS 1–4 scale. |
-| FR-4.1.3 | Apply Spaced Repetition Scheduling | The SRS Engine shall return a sooner next review for a "hard" rating than for an "easy" rating. |
-| FR-4.2.1 | Preview Rating Outcomes | The SRS Engine shall preview the scheduling outcome for every rating without applying any of them. |
-| FR-4.3.1 | Track Review History | The planned product shall record review outcomes for each card. |
-| FR-5.1.1 | Start Application Server | The Application Server shall start and listen on the configured port when executed. |
-| FR-5.2.1 | Serve Static Web Assets | The Application Server shall serve static files from the webapp distribution directory when the files are present. |
-| FR-5.3.1 | Support Client-Side Routing | The Web Application shall support route-based navigation through the generated router configuration. |
-| FR-6.1.1 | Execute Server Tests | The server test suite shall execute through Vitest and validate current HTTP behavior. |
-| FR-6.2.1 | Execute Webapp Tests | The webapp test suite shall execute through Vitest and validate rendered UI content. |
-| FR-6.3.1 | Execute SRS Engine Tests | The SRS engine test suite shall execute through Vitest and validate scheduling behavior. |
-| FR-7.1.1 | Maintain Project Documentation | The project shall maintain a living PRD and supporting project documentation. |
-| FR-7.2.1 | Track Project Risks | The project shall maintain a risk management artifact that records identified risks and mitigations. |
+Each functional requirement is traced to the automated test file(s) that verify it.
+The mapping is maintained in `docs/traceability-map.json` and can be validated with
+`node scripts/traceability.js` (see Section 18, "Requirements ↔ Test Traceability").
+
+| Requirement ID | Level-2 Capability | Requirement Description | Verifying Test(s) |
+|----------------|--------------------|------------------------|-------------------|
+| FR-1.1.1 | Register User | The Authentication Service shall register a new user with a valid email and password within one request. | `server/__tests__/auth.test.js` |
+| FR-1.1.2 | Register User | The Authentication Service shall reject a duplicate email registration with a 409 conflict response. | `server/__tests__/auth.test.js`, `server/__tests__/validate.test.js` |
+| FR-1.1.3 | Register User | The Authentication Service shall hash the user's password with bcrypt before storing it. | `server/__tests__/auth.test.js` |
+| FR-1.2.1 | Authenticate User | The Authentication Service shall authenticate a registered user and issue an access token within one request. | `server/__tests__/auth.test.js`, `webapp/src/__tests__/AuthContext.test.tsx` |
+| FR-1.2.2 | Authenticate User | The Authentication Service shall reject invalid credentials with a 401 response. | `server/__tests__/auth.test.js` |
+| FR-1.3.1 | Refresh User Session | The Authentication Service shall issue a new access token from a valid refresh token within one request. | `server/__tests__/auth.test.js`, `webapp/src/__tests__/AuthContext.test.tsx` |
+| FR-1.3.2 | Refresh User Session | The Authentication Service shall reject an invalid or expired refresh token with a 401 response. | `server/__tests__/auth.test.js` |
+| FR-1.4.1 | Log Out User | The Authentication Service shall clear the session cookie and log the user out within one request. | `server/__tests__/auth.test.js`, `webapp/src/__tests__/AuthContext.test.tsx` |
+| FR-2.1.1 | Create Deck | The Deck Service shall create a deck for the authenticated user with a valid title within one request. | `server/__tests__/decks.test.js`, `webapp/src/__tests__/DecksRoute.test.tsx`, `webapp/src/__tests__/decksApi.test.ts` |
+| FR-2.2.1 | List Decks | The Deck Service shall list only the decks owned by the authenticated user. | `server/__tests__/decks.test.js`, `webapp/src/__tests__/DecksRoute.test.tsx`, `webapp/src/__tests__/decksApi.test.ts` |
+| FR-2.3.1 | View Deck | The Deck Service shall return a deck owned by the authenticated user, including its cards. | `server/__tests__/decks.test.js` |
+| FR-2.4.1 | Update Deck | The Deck Service shall update the title or description of a deck owned by the authenticated user. | `server/__tests__/decks.test.js` |
+| FR-2.5.1 | Delete Deck | The Deck Service shall delete a deck owned by the authenticated user and cascade to its cards and reviews. | `server/__tests__/decks.test.js`, `server/__tests__/schema.test.js`, `webapp/src/__tests__/DecksRoute.test.tsx`, `webapp/src/__tests__/decksApi.test.ts` |
+| FR-3.1.1 | Create Card | The Card Service shall create a card with a valid question, answer, and optional tags within a user's deck. | `server/__tests__/cards.test.js`, `webapp/src/__tests__/DeckDetailRoute.test.tsx`, `webapp/src/__tests__/decksApi.test.ts` |
+| FR-3.2.1 | List Cards | The Card Service shall list the cards belonging to a deck owned by the authenticated user. | `server/__tests__/cards.test.js` |
+| FR-3.3.1 | View Card | The Card Service shall return a card owned by the authenticated user via its deck. | `server/__tests__/cards.test.js` |
+| FR-3.4.1 | Update Card | The Card Service shall update the question, answer, or tags of a card owned by the authenticated user. | `server/__tests__/cards.test.js` |
+| FR-3.5.1 | Delete Card | The Card Service shall delete a card owned by the authenticated user via its deck. | `server/__tests__/cards.test.js`, `webapp/src/__tests__/DeckDetailRoute.test.tsx` |
+| FR-4.1.1 | Apply Spaced Repetition Scheduling | The SRS Engine shall compute the next review date and updated FSRS state from a card's current state and a user rating. | `packages/srs-engine/__tests__/scheduler.test.js`, `packages/srs-engine/__tests__/state.test.js`, `server/__tests__/study.test.js`, `webapp/src/__tests__/StudyRoute.test.tsx` |
+| FR-4.1.2 | Apply Spaced Repetition Scheduling | The SRS Engine shall map UI ratings (again, hard, medium, easy) to the FSRS 1–4 scale. | `packages/srs-engine/__tests__/rating.test.js`, `server/__tests__/study.test.js` |
+| FR-4.1.3 | Apply Spaced Repetition Scheduling | The SRS Engine shall return a sooner next review for a "hard" rating than for an "easy" rating. | `packages/srs-engine/__tests__/scheduler.test.js` |
+| FR-4.2.1 | Preview Rating Outcomes | The SRS Engine shall preview the scheduling outcome for every rating without applying any of them. | `packages/srs-engine/__tests__/scheduler.test.js` |
+| FR-4.3.1 | Track Review History | The planned product shall record review outcomes for each card. | `server/__tests__/study.test.js`, `server/__tests__/schema.test.js`, `webapp/src/__tests__/StudyRoute.test.tsx` |
+| FR-5.1.1 | Start Application Server | The Application Server shall start and listen on the configured port when executed. | `server/__tests__/app.test.js`, `server/__tests__/study.test.js` |
+| FR-5.2.1 | Serve Static Web Assets | The Application Server shall serve static files from the webapp distribution directory when the files are present. | `server/__tests__/app.test.js` |
+| FR-5.3.1 | Support Client-Side Routing | The Web Application shall support route-based navigation through the generated router configuration. | `server/__tests__/app.test.js`, `webapp/src/__tests__/App.test.tsx`, `webapp/src/__tests__/IndexRoute.test.tsx` |
+| FR-6.1.1 | Execute Server Tests | The server test suite shall execute through Vitest and validate current HTTP behavior. | `server/__tests__/app.test.js` |
+| FR-6.2.1 | Execute Webapp Tests | The webapp test suite shall execute through Vitest and validate rendered UI content. | `webapp/src/__tests__/App.test.tsx` |
+| FR-6.3.1 | Execute SRS Engine Tests | The SRS engine test suite shall execute through Vitest and validate scheduling behavior. | `packages/srs-engine/__tests__/scheduler.test.js` |
+| FR-7.1.1 | Maintain Project Documentation | The project shall maintain a living PRD and supporting project documentation. | (no automated test — documentation requirement) |
+| FR-7.2.1 | Track Project Risks | The project shall maintain a risk management artifact that records identified risks and mitigations. | (no automated test — documentation requirement) |
 
 ---
 
@@ -562,3 +568,46 @@ Further enhancements are not yet implemented or documented beyond the README's r
 - Card: An individual flashcard item
 - Review: A record of a single rating outcome for a card
 - UI rating: The learner-facing rating (again, hard, medium, easy) mapped to the FSRS 1–4 scale
+
+---
+
+# 18. Requirements ↔ Test Traceability (Automation)
+
+To keep the traceability matrix accurate as the project evolves, the requirement-to-test
+mapping is maintained as machine-readable data and validated by a script.
+
+## Mapping data
+
+`docs/traceability-map.json` maps every functional requirement ID (`FR-*`) to the test
+file(s) that verify it. This is the single source of truth that the traceability matrix
+in Section 14 is generated from.
+
+## Validation script
+
+`scripts/traceability.js` checks that:
+
+1. Every mapped test file exists in the repository.
+2. Every mapped test file actually contains at least one test case (`test(` or `it(`).
+3. Every `FR-*` requirement in this PRD has an entry in the map (no unmapped requirements).
+4. No map entries are stale (mapped but no longer present in the PRD).
+
+Run it with:
+
+```bash
+node scripts/traceability.js        # human-readable report
+node scripts/traceability.js --json # machine-readable JSON
+```
+
+The script exits with code `0` on success and `1` if any requirement is unmapped or a
+mapped test file is missing/empty. It is intended to be wired into CI so that a PR that
+adds a requirement without a test, or removes a mapped test file, fails the build.
+
+## Current status
+
+- PRD functional requirements: 31
+- Mapped requirements: 31
+- Unmapped: 0
+- Stale entries: 0
+
+> Documentation-only requirements (FR-7.1.1, FR-7.2.1) have no automated test mapped and
+> are verified by review rather than by the test suite.

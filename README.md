@@ -21,7 +21,7 @@ EduSpaced is a flashcard study app that schedules reviews automatically using th
 | Validation | Zod (shared between client and server) |
 | Database | SQLite via Prisma ORM |
 | SRS engine | `ts-fsrs` |
-| Testing | Jest/Vitest (unit), Supertest (integration), Playwright (E2E) |
+| Testing | Vitest (unit), Supertest (API/integration) — E2E is planned, not yet implemented |
 
 ## Project Structure
 
@@ -109,25 +109,27 @@ The scheduler itself lives in `packages/srs-engine`, isolated from the rest of t
 ## Testing
 
 ```bash
-npm run test          # unit tests (Jest/Vitest)
-npm run test:integration  # Supertest against an in-memory SQLite DB
-npm run test:e2e      # Playwright end-to-end tests
+pnpm --filter server test   # unit + Supertest API tests (vitest)
+pnpm --filter webapp test   # unit/component tests (vitest)
+pnpm --filter webapp lint   # ESLint
 ```
 
-The test pyramid in this project:
+The test suite in this project:
 
-- **Unit** — `StudyService` and the SRS engine (e.g. a "Hard" rating must produce a sooner next-review date than "Easy")
-- **Integration** — full API flows against an in-memory database (create card → start session → rate → verify DB update)
-- **E2E** — a full user journey: login, create deck, add cards, study, check dashboard
+- **Unit** — `StudyService`, deck/card services, and the SRS engine (e.g. a "Hard" rating must produce a sooner next-review date than "Easy")
+- **API/integration** — Supertest-driven requests against the real Express app and a SQLite test database (auth, deck/card CRUD, study flow)
+- **E2E** — not yet implemented; a full user journey (login, create deck, add cards, study, check dashboard) via Playwright is planned but no config or tests exist in the repo yet
 
 ## CI/CD
 
-GitHub Actions runs on every push to `main`:
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push and pull request, to any branch:
 
-- Lint (ESLint) and format check (Prettier)
-- Unit and integration tests
+- **`test`** — server and webapp unit/integration tests (vitest, incl. Supertest), plus a requirement↔test traceability check (`scripts/traceability.js`)
+- **`lint`** — ESLint over the webapp
 
-On merge to `main`, Docker images are built for the client and server.
+On push to `main` only, a **`release`** job (requires `test` and `lint` to pass) bumps a semver tag from conventional commit messages, builds the webapp, zips the webapp and server artifacts, publishes a GitHub Release, and updates `docs/BASELINE_INVENTORY.md` with the new baseline.
+
+> **Branch protection:** required status checks (`test`, `lint`) are enforced by the CI workflow itself, but GitHub branch-protection rules for `main` (blocking merges when a check fails, requiring review) are not yet configured in repository settings. This is a tracked gap — see `docs/configuration_management.md`.
 
 ## Roadmap
 
